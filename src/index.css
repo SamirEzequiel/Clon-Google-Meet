@@ -1,0 +1,17 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #fff;
+  overflow: hidden;
+}
+.confetti {
+  background-image: url('https://ssl.gstatic.com/meet/backgrounds/confetti-light.svg');
+  background-repeat: repeat;
+  opacity: 0.2;
+  z-index: 0;
+}
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
