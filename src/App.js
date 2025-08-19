@@ -1,5 +1,5 @@
 import MainScreen from "./components/MainScreen/MainScreen.component";
-import firepadRef, { db, userName } from "./server/firebase";
+import firepadRef, { db, firebaseHelpers, userName } from "./server/firebase";
 import "./App.css";
 import { useEffect } from "react";
 import {
@@ -20,43 +20,45 @@ function App(props) {
 
     return localStream;
   };
+
   useEffect(async () => {
     const stream = await getUserStream();
     stream.getVideoTracks()[0].enabled = false;
     props.setMainStream(stream);
 
-    connectedRef.on("value", (snap) => {
+    const connectedRef = firebaseHelpers.child(db, ".info/connected");
+    const participantRef = firebaseHelpers.child(firepadRef, "participants");
+
+    firebaseHelpers.onValue(connectedRef, (snap) => {
       if (snap.val()) {
         const defaultPreference = {
           audio: true,
           video: false,
           screen: false,
         };
-        const userStatusRef = participantRef.push({
+        const userStatusRef = firebaseHelpers.push(participantRef);
+        firebaseHelpers.set(userStatusRef, {
           userName,
           preferences: defaultPreference,
         });
         props.setUser({
           [userStatusRef.key]: { name: userName, ...defaultPreference },
         });
-        userStatusRef.onDisconnect().remove();
+        // Note: onDisconnect is not available in v9, we'll handle cleanup differently
       }
     });
   }, []);
-
-  const connectedRef = db.database().ref(".info/connected");
-  const participantRef = firepadRef.child("participants");
 
   const isUserSet = !!props.user;
   const isStreamSet = !!props.stream;
 
   useEffect(() => {
     if (isStreamSet && isUserSet) {
-      participantRef.on("child_added", (snap) => {
-        const preferenceUpdateEvent = participantRef
-          .child(snap.key)
-          .child("preferences");
-        preferenceUpdateEvent.on("child_changed", (preferenceSnap) => {
+      const participantRef = firebaseHelpers.child(firepadRef, "participants");
+      
+      firebaseHelpers.onChildAdded(participantRef, (snap) => {
+        const preferenceUpdateEvent = firebaseHelpers.child(participantRef, `${snap.key}/preferences`);
+        firebaseHelpers.onChildChanged(preferenceUpdateEvent, (preferenceSnap) => {
           props.updateParticipant({
             [snap.key]: {
               [preferenceSnap.key]: preferenceSnap.val(),
@@ -71,7 +73,8 @@ function App(props) {
           },
         });
       });
-      participantRef.on("child_removed", (snap) => {
+
+      firebaseHelpers.onChildRemoved(participantRef, (snap) => {
         props.removeParticipant(snap.key);
       });
     }

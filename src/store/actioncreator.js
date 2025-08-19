@@ -5,6 +5,10 @@ import {
   REMOVE_PARTICIPANT,
   UPDATE_USER,
   UPDATE_PARTICIPANT,
+  ADD_MESSAGE,
+  SET_MESSAGES,
+  SET_CHAT_OPEN,
+  SET_TYPING,
 } from "./actiontypes";
 
 export const setMainStream = (stream) => {
@@ -57,6 +61,43 @@ export const removeParticipant = (userId) => {
     type: REMOVE_PARTICIPANT,
     payload: {
       id: userId,
+    },
+  };
+};
+
+// Chat actions
+export const addMessage = (message) => {
+  return {
+    type: ADD_MESSAGE,
+    payload: {
+      message,
+    },
+  };
+};
+
+export const setMessages = (messages) => {
+  return {
+    type: SET_MESSAGES,
+    payload: {
+      messages,
+    },
+  };
+};
+
+export const setChatOpen = (isOpen) => {
+  return {
+    type: SET_CHAT_OPEN,
+    payload: {
+      isOpen,
+    },
+  };
+};
+
+export const setTyping = (typingData) => {
+  return {
+    type: SET_TYPING,
+    payload: {
+      typingData,
     },
   };
 };

@@ -5,6 +5,10 @@ import {
   REMOVE_PARTICIPANT,
   UPDATE_USER,
   UPDATE_PARTICIPANT,
+  ADD_MESSAGE,
+  SET_MESSAGES,
+  SET_CHAT_OPEN,
+  SET_TYPING,
 } from "./actiontypes";
 
 import {
@@ -17,6 +21,9 @@ let defaultUserState = {
   mainStream: null,
   participants: {},
   currentUser: null,
+  messages: [],
+  chatOpen: false,
+  typing: {},
 };
 
 const servers = {
@@ -98,6 +105,23 @@ export const userReducer = (state = defaultUserState, action) => {
     };
     let participants = { ...state.participants, ...payload.newUser };
     state = { ...state, participants };
+    return state;
+  } else if (action.type === ADD_MESSAGE) {
+    let payload = action.payload;
+    let messages = [...state.messages, payload.message];
+    state = { ...state, messages };
+    return state;
+  } else if (action.type === SET_MESSAGES) {
+    let payload = action.payload;
+    state = { ...state, messages: payload.messages };
+    return state;
+  } else if (action.type === SET_CHAT_OPEN) {
+    let payload = action.payload;
+    state = { ...state, chatOpen: payload.isOpen };
+    return state;
+  } else if (action.type === SET_TYPING) {
+    let payload = action.payload;
+    state = { ...state, typing: { ...state.typing, ...payload.typingData } };
     return state;
   }
   return state;

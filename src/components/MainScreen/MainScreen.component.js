@@ -1,9 +1,10 @@
 import React, { useRef, useEffect } from "react";
 import MeetingFooter from "../MeetingFooter/MeetingFooter.component";
 import Participants from "../Participants/Participants.component";
+import Chat from "../Chat/Chat.component";
 import "./MainScreen.css";
 import { connect } from "react-redux";
-import { setMainStream, updateUser } from "../../store/actioncreator";
+import { setMainStream, updateUser, setChatOpen } from "../../store/actioncreator";
 
 const MainScreen = (props) => {
   const participantRef = useRef(props.participants);
@@ -14,11 +15,16 @@ const MainScreen = (props) => {
       props.updateUser({ audio: micEnabled });
     }
   };
+
   const onVideoClick = (videoEnabled) => {
     if (props.stream) {
       props.stream.getVideoTracks()[0].enabled = videoEnabled;
       props.updateUser({ video: videoEnabled });
     }
+  };
+
+  const onChatClick = () => {
+    props.setChatOpen(!props.chatOpen);
   };
 
   useEffect(() => {
@@ -72,6 +78,7 @@ const MainScreen = (props) => {
 
     props.updateUser({ screen: true });
   };
+
   return (
     <div className="wrapper">
       <div className="main-screen">
@@ -83,8 +90,11 @@ const MainScreen = (props) => {
           onScreenClick={onScreenClick}
           onMicClick={onMicClick}
           onVideoClick={onVideoClick}
+          onChatClick={onChatClick}
         />
       </div>
+
+      <Chat />
     </div>
   );
 };
@@ -94,6 +104,7 @@ const mapStateToProps = (state) => {
     stream: state.mainStream,
     participants: state.participants,
     currentUser: state.currentUser,
+    chatOpen: state.chatOpen,
   };
 };
 
@@ -101,6 +112,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setMainStream: (stream) => dispatch(setMainStream(stream)),
     updateUser: (user) => dispatch(updateUser(user)),
+    setChatOpen: (isOpen) => dispatch(setChatOpen(isOpen)),
   };
 };
 
